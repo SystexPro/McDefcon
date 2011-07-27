@@ -1,0 +1,18 @@
+name: McDefcon
+main: com.systexpro.defcon.MCDefcon
+version: 1.5
+startup: startup
+permissions:
+    mcdefcon.admin:
+        description: Allows a Player to change Defcon Levels
+        default: false
+    doorman.accpet:
+        description: Allows a Player to bypass Defcon Levels
+        default: false
+commands:
+  dc:
+    description: Defcon Command Trigger
+    usage: /<command> 
+  defcon:
+    description: Defcon Command Trigger
+    usage: /<command>
