@@ -23,7 +23,7 @@ public class MCPlayerListener extends PlayerListener {
 			}
 		} else if(plugin.defconLevel == 2 && !plugin.isAdmin(p, "accpet")) {
 			if(plugin.mcbansLoaded) {
-				plugin.mcbansHandler.ban(p.getDisplayName(), "Console", plugin.level2Message, plugin.mcBansType);
+				plugin.mcbansHandler.ban(p.getDisplayName(), "Console", plugin.level2Message, "Local");
 			} else {
 				event.disallow(Result.KICK_BANNED, plugin.level2Message);
 			}

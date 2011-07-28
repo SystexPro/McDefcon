@@ -31,7 +31,6 @@ public class MCDefcon extends JavaPlugin {
 	public String level1Message = "Kicked. Defcon Level 1.";
 	public String level2Message = "Banned. Defcon Level 2.";
 	public String level3Message = "Temp Banned. Defcon Level 3";
-	public String mcBansType = "Local";
 	public String mcTempBanTime = "5m";
 	public boolean onDefconChangeKickAllPlayers = false;
 	public boolean broadcast = true;
@@ -73,7 +72,6 @@ public class MCDefcon extends JavaPlugin {
 		this.broadcast = config.getBoolean("Broadcast Level Change", broadcast);
 		this.useMcBans = config.getBoolean("Use McBans", useMcBans);
 		this.mcTempBanTime = config.getString("McBans Temporary Ban Time", mcTempBanTime);
-		this.mcBansType = config.getString("McBan Type(G = Global, L = Local)", mcBansType);
 		config.save();
 	}
 
