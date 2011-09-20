@@ -22,7 +22,10 @@ public class McPlayerListener extends PlayerListener {
 		if(plugin.defconLevel == 6) {
 			if(!plugin.isAdmin(p, "admin") || !plugin.isAdmin(p, "accept")) {
 				messageSent++;
-				p.sendMessage(plugin.level6Message);
+				if(messageSent == 1000) {
+					p.sendMessage(plugin.level6Message);
+					messageSent = 0;
+				}
 				event.setCancelled(true);
 			} else {
 				event.setCancelled(false);

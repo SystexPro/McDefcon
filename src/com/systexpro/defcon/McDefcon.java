@@ -51,6 +51,7 @@ public class McDefcon extends JavaPlugin {
 	public boolean useMcBans = false;
 	public boolean bPerms = false;
 	public int defconLevel = 0;
+	public int[] levelList;
 
 
 	@Override
@@ -140,16 +141,13 @@ public class McDefcon extends JavaPlugin {
 				colorSend(player, "All Players will join without check.");
 				colorSendAll("Defcon Level is set to 0.");
 				kickAllPlayers(defconLevel);
-				//saveDefconLevel();
 			} else if(args[1].equalsIgnoreCase("1")) {
 				this.defconLevel = 1;
 				colorSend(player, "Defcon Level set to 1.");
 				colorSend(player, "All Players will be kicked off. (Except Ops)");
 				colorSendAll("Defcon Level is set to 1.");
 				kickAllPlayers(defconLevel);
-				//saveDefconLevel();
 			} else if(args[1].equalsIgnoreCase("2")) {
-				//saveDefconLevel();
 				if(this.useMcBans) {
 					this.defconLevel = 2;
 					colorSend(player, "Defcon level set to 2.");
@@ -164,7 +162,6 @@ public class McDefcon extends JavaPlugin {
 				colorSend(player, "Defcon level set to 3.");
 				colorSend(player, "All Incoming Players will be Banned. (Except Ops)");
 				colorSendAll("Defcon Level is set to 3.");
-				kickAllPlayers(defconLevel);
 			} else if(args[1].equalsIgnoreCase("4")) {
 				this.defconLevel = 4;
 				colorSend(player, "Defcon level set to 4.");
@@ -194,6 +191,10 @@ public class McDefcon extends JavaPlugin {
 		if(cmd.equalsIgnoreCase("check")) {
 			colorSend(player, "Defcon is on Level: " + defconLevel);
 		}
+		if(cmd.equalsIgnoreCase("cs")) {
+			colorSend(player, "Kicking all Players.");
+			kickAllPlayersFromServer(player);
+		}
 		if(cmd.equalsIgnoreCase("reload")) {
 			colorSend(player, "Reloading Configuration File.");
 			send("Reloading Configuration File.");
@@ -214,6 +215,18 @@ public class McDefcon extends JavaPlugin {
 				Player p = online[x];
 				if(!this.isAdmin(p, "admin") || !this.isAdmin(p, "accept")) {
 					p.kickPlayer("Defcon Level set to " + level);
+				}
+			}
+		}
+	}
+	
+	public void kickAllPlayersFromServer(Player p1) {
+		if(this.onDefconChangeKickAllPlayers) {
+			Player[] online = this.getServer().getOnlinePlayers();
+			for(int x = 0; x < online.length; x++) {
+				Player p = online[x];
+				if(!this.isAdmin(p, "admin") || !this.isAdmin(p, "accept")) {
+					p.kickPlayer("Kicking all Players - " + p1.getDisplayName());
 				}
 			}
 		}
@@ -245,7 +258,8 @@ public class McDefcon extends JavaPlugin {
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc level <level> - Sets Defcon Level: 0, 1, 2, 3, 4, 5, and 6");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc level view - Shows the current Defcon Levels.");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc check - Checks what level Defcon is on.");
-		p.sendMessage(ChatColor.DARK_AQUA + "/dc reload - Reload Coonfiguration File.");
+		p.sendMessage(ChatColor.DARK_AQUA + "/dc reload - Reload Configuration File.");
+		p.sendMessage(ChatColor.DARK_AQUA + "/dc cs - (Clear Server) Kicks every from the server.");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc ? - Help Menu.");
 		return true;
 	}
