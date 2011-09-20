@@ -240,7 +240,7 @@ public class McDefcon extends JavaPlugin {
 	 */
 	private boolean help(CommandSender sender) {
 		Player p = (Player) sender;
-		p.sendMessage(ChatColor.DARK_RED + "==MCDefcon v1.0==");
+		p.sendMessage(ChatColor.DARK_RED + "==MCDefcon " + getDescription().getVersion() + "==");
 		p.sendMessage(ChatColor.AQUA + "Command Triggers - /dc, /defcon");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc level <level> - Sets Defcon Level: 0, 1, 2, 3, 4, 5, and 6");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc level view - Shows the current Defcon Levels.");
