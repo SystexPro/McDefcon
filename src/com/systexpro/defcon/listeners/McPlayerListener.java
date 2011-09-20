@@ -37,13 +37,13 @@ public class McPlayerListener extends PlayerListener {
 		Player p = event.getPlayer();
 		if(plugin.defconLevel == 1 && !plugin.isAdmin(p, "accept")) {
 			if(plugin.mcbansLoaded) {
-				plugin.mcbansHandler.kick(p.getDisplayName(), "console", plugin.level1Message);
+				plugin.mcbansHandler.kick(p.getDisplayName(), "console", plugin.defconAPI.getLevel1Message());
 			} else {
 				event.disallow(Result.KICK_OTHER, plugin.level1Message);
 			}
 		} else if(plugin.defconLevel == 2 && !plugin.isAdmin(p, "accept")) {
 			if(plugin.mcbansLoaded) {
-				plugin.mcbansHandler.ban(p.getDisplayName(), "Console", plugin.level2Message, "Local");
+				plugin.mcbansHandler.ban(p.getDisplayName(), "Console", plugin.defconAPI.getLevel2Message(), "Local");
 			} else {
 				event.disallow(Result.KICK_BANNED, plugin.level2Message);
 			}
@@ -58,7 +58,7 @@ public class McPlayerListener extends PlayerListener {
 		Player p = event.getPlayer();
 		if(plugin.defconLevel == 4) {
 			if(!plugin.isAdmin(p, "admin") || !plugin.isAdmin(p, "accept")) {
-				p.sendMessage(plugin.level4Message);
+				p.sendMessage(plugin.defconAPI.getLevel4Message());
 				event.setCancelled(true);
 			} else {
 				event.setCancelled(false);

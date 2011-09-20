@@ -23,6 +23,7 @@ import com.firestar.mcbans.mcbans_handler;
 import com.firestar.mcbans.mcbans;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.systexpro.defcon.api.McDefconApi;
 import com.systexpro.defcon.listeners.McBlockListener;
 import com.systexpro.defcon.listeners.McPlayerListener;
 import com.systexpro.defcon.update.McDefconUpdater;
@@ -36,6 +37,7 @@ public class McDefcon extends JavaPlugin {
 	public CommandHandler commands = new CommandHandler(this);
 	public Configuration config = new Configuration(new File("plugins/McDefcon/config.yml"));
 	public McDefconUpdater update;
+	public McDefconApi defconAPI;
 	public String level1Message = "Kicked. Defcon Level 1.";
 	public String level2Message = "Banned. Defcon Level 2.";
 	public String level3Message = "Temp Banned. Defcon Level 3";
@@ -51,6 +53,7 @@ public class McDefcon extends JavaPlugin {
 	public boolean useMcBans = false;
 	public boolean bPerms = false;
 	public int defconLevel = 0;
+	public int maxLevel = 7;
 	public int[] levelList;
 
 
@@ -68,6 +71,7 @@ public class McDefcon extends JavaPlugin {
 		loadConfig();
 		playerListener = new McPlayerListener(this);
 		blockListener = new McBlockListener(this);
+		defconAPI = new McDefconApi(this);
 		setupPermissions();
 		setupMcbans();
 		registerEvents();
