@@ -136,20 +136,20 @@ public class McDefcon extends JavaPlugin {
 		String cmd = args[0];
 		if(cmd.equalsIgnoreCase("level") || cmd.equalsIgnoreCase("lvl") && args[1] != null) {
 			if(args[1].equalsIgnoreCase("0")) {
-				this.defconLevel = 0;
+				setDefconLevel(0);
 				colorSend(player, "Defcon Level set to 0.");
 				colorSend(player, "All Players will join without check.");
 				colorSendAll("Defcon Level is set to 0.");
 				kickAllPlayers(defconLevel);
 			} else if(args[1].equalsIgnoreCase("1")) {
-				this.defconLevel = 1;
+				setDefconLevel(1);
 				colorSend(player, "Defcon Level set to 1.");
 				colorSend(player, "All Players will be kicked off. (Except Ops)");
 				colorSendAll("Defcon Level is set to 1.");
 				kickAllPlayers(defconLevel);
 			} else if(args[1].equalsIgnoreCase("2")) {
 				if(this.useMcBans) {
-					this.defconLevel = 2;
+					setDefconLevel(2);
 					colorSend(player, "Defcon level set to 2.");
 					colorSend(player, "All Incoming will be temporary banned for " + this.mcTempBanTime);
 					colorSendAll("Defcon Level is set to 2.");
@@ -158,22 +158,22 @@ public class McDefcon extends JavaPlugin {
 					colorSend(player, "This Level is for McBans, Please load McBans to use it.");
 				}
 			} else if(args[1].equalsIgnoreCase("3")) {
-				this.defconLevel = 3;
+				setDefconLevel(3);
 				colorSend(player, "Defcon level set to 3.");
 				colorSend(player, "All Incoming Players will be Banned. (Except Ops)");
 				colorSendAll("Defcon Level is set to 3.");
 			} else if(args[1].equalsIgnoreCase("4")) {
-				this.defconLevel = 4;
+				setDefconLevel(4);
 				colorSend(player, "Defcon level set to 4.");
 				colorSend(player, "All Players are Muted");
 				colorSendAll("Defcon Level is set to 4.");
 			} else if(args[1].equalsIgnoreCase("5")) {
-				this.defconLevel = 5;
+				setDefconLevel(5);
 				colorSend(player, "Defcon level set to 5.");
 				colorSend(player, "Building is off.");
 				colorSendAll("Defcon Level is set to 5.");
 			} else if(args[1].equalsIgnoreCase("6")) {
-				this.defconLevel = 6;
+				this.setDefconLevel(6);
 				colorSend(player, "Defcon level set to 6.");
 				colorSend(player, "All players are Frozen.");
 				colorSendAll("Defcon Level is set to 6.");
@@ -208,6 +208,10 @@ public class McDefcon extends JavaPlugin {
 		}
 	}
 
+	public void setDefconLevel(int i) {
+		this.defconLevel = i;
+	}
+
 	public void kickAllPlayers(int level) {
 		if(this.onDefconChangeKickAllPlayers) {
 			Player[] online = this.getServer().getOnlinePlayers();
@@ -219,15 +223,13 @@ public class McDefcon extends JavaPlugin {
 			}
 		}
 	}
-	
+
 	public void kickAllPlayersFromServer(Player p1) {
-		if(this.onDefconChangeKickAllPlayers) {
-			Player[] online = this.getServer().getOnlinePlayers();
-			for(int x = 0; x < online.length; x++) {
-				Player p = online[x];
-				if(!this.isAdmin(p, "admin") || !this.isAdmin(p, "accept")) {
-					p.kickPlayer("Kicking all Players - " + p1.getDisplayName());
-				}
+		Player[] online = this.getServer().getOnlinePlayers();
+		for(int x = 0; x < online.length; x++) {
+			Player p = online[x];
+			if(!this.isAdmin(p, "admin") || !this.isAdmin(p, "accept")) {
+				p.kickPlayer("Kicking all Players - " + p1.getDisplayName());
 			}
 		}
 	}
@@ -302,6 +304,7 @@ public class McDefcon extends JavaPlugin {
 			}
 		}
 	}
+	
 	/**
 	 * Defaults to Op/Permissions
 	 * Checks if User has either
