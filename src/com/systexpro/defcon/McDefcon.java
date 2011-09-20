@@ -8,6 +8,7 @@
 package com.systexpro.defcon;
 
 import java.io.File;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -22,23 +23,35 @@ import com.firestar.mcbans.mcbans_handler;
 import com.firestar.mcbans.mcbans;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.systexpro.defcon.listeners.McBlockListener;
+import com.systexpro.defcon.listeners.McPlayerListener;
+import com.systexpro.defcon.update.McDefconUpdater;
 
-public class MCDefcon extends JavaPlugin {
+public class McDefcon extends JavaPlugin {
 
-	public MCPlayerListener playerListener = new MCPlayerListener(this);
+	public McPlayerListener playerListener;
+	public McBlockListener blockListener;
 	public PermissionHandler permissionHandler;
 	public mcbans_handler mcbansHandler;
+	public CommandHandler commands = new CommandHandler(this);
+	public Configuration config = new Configuration(new File("plugins/McDefcon/config.yml"));
+	public McDefconUpdater update;
 	public String level1Message = "Kicked. Defcon Level 1.";
 	public String level2Message = "Banned. Defcon Level 2.";
 	public String level3Message = "Temp Banned. Defcon Level 3";
+	public String level4Message = "Defcon Level 4. All Players Muted.";
+	public String level5Message = "Defcon Level 5. Building is off.";
+	public String level6Message = "Defcon Level 6. All players are frozen.";
 	public String mcTempBanTime = "5m";
 	public boolean onDefconChangeKickAllPlayers = false;
 	public boolean broadcast = true;
 	public boolean UsePermissions;
+	public boolean autoUpdate = false;
 	public boolean mcbansLoaded;
 	public boolean useMcBans = false;
 	public boolean bPerms = false;
 	public int defconLevel = 0;
+
 
 	@Override
 	public void onDisable() {
@@ -52,9 +65,11 @@ public class MCDefcon extends JavaPlugin {
 		getDataFolder().mkdirs();
 		send("Loading Configuration File.");
 		loadConfig();
-		registerEvents();
+		playerListener = new McPlayerListener(this);
+		blockListener = new McBlockListener(this);
 		setupPermissions();
 		setupMcbans();
+		registerEvents();
 		send("Defcon on Level: " + this.defconLevel);
 	}
 
@@ -62,18 +77,32 @@ public class MCDefcon extends JavaPlugin {
 	 * Load Configuration File
 	 */
 	public void loadConfig() {
-		Configuration config = new Configuration(new File("plugins/McDefcon/config.yml"));
 		config.load();
-		this.defconLevel = config.getInt("Defcon Level", defconLevel);
-		this.bPerms = config.getBoolean("Use Bukkit Permissions", bPerms);
-		this.level1Message = config.getString("Level 1 Message", level1Message);
-		this.level2Message = config.getString("Level 2 Message", level2Message);
-		this.onDefconChangeKickAllPlayers = config.getBoolean("Kick All Players on Defcon Level Change", onDefconChangeKickAllPlayers);
-		this.broadcast = config.getBoolean("Broadcast Level Change", broadcast);
-		this.useMcBans = config.getBoolean("Use McBans", useMcBans);
-		this.mcTempBanTime = config.getString("McBans Temporary Ban Time", mcTempBanTime);
+		config.setHeader(
+				"#====================================\n" +
+				"#McBans by SystexPro\n" +
+				"#Build: #1060\n" +
+				"#Version: " + getDescription().getVersion() + "\n" +
+				"#====================================\n" 
+		);
+		//defcon
+		this.defconLevel = config.getInt("main.Defcon Level", defconLevel);
+		//messages
+		this.level1Message = config.getString("messages.Level 1 Message", this.level1Message);
+		this.level2Message = config.getString("messages.Level 2 Message", this.level2Message);
+		this.level4Message = config.getString("messages.Level 4 Message", this.level4Message);
+		this.level5Message = config.getString("messages.Level 5 Message", this.level5Message);
+		this.level6Message = config.getString("messages.Level 6 Message", this.level6Message);
+		//options
+		//this.autoUpdate = config.getBoolean("options.Auto Update Plugin", autoUpdate);
+		this.bPerms = config.getBoolean("options.Use Bukkit Permissions", bPerms);
+		this.broadcast = config.getBoolean("options.Broadcast Level Change", broadcast);
+		this.useMcBans = config.getBoolean("options.Use McBans", useMcBans);
+		this.onDefconChangeKickAllPlayers = config.getBoolean("options.Kick All Players on Defcon Level Change", onDefconChangeKickAllPlayers);
+		this.mcTempBanTime = config.getString("options.McBans Temporary Ban Time", mcTempBanTime);
 		config.save();
 	}
+
 
 	/**
 	 * Handle Commands
@@ -120,28 +149,48 @@ public class MCDefcon extends JavaPlugin {
 				kickAllPlayers(defconLevel);
 				//saveDefconLevel();
 			} else if(args[1].equalsIgnoreCase("2")) {
-				this.defconLevel = 2;
-				colorSend(player, "Defcon level set to 2.");
-				colorSend(player, "All Incoming Players will be Banned. (Except Ops)");
-				colorSendAll("Defcon Level is set to 2.");
-				kickAllPlayers(defconLevel);
 				//saveDefconLevel();
-			} else if(args[1].equalsIgnoreCase("3")) {
 				if(this.useMcBans) {
-					this.defconLevel = 3;
-					colorSend(player, "Defcon level set to 3.");
+					this.defconLevel = 2;
+					colorSend(player, "Defcon level set to 2.");
 					colorSend(player, "All Incoming will be temporary banned for " + this.mcTempBanTime);
-					colorSendAll("Defcon Level is set to 3.");
+					colorSendAll("Defcon Level is set to 2.");
 					kickAllPlayers(defconLevel);
 				} else {
 					colorSend(player, "This Level is for McBans, Please load McBans to use it.");
 				}
+			} else if(args[1].equalsIgnoreCase("3")) {
+				this.defconLevel = 3;
+				colorSend(player, "Defcon level set to 3.");
+				colorSend(player, "All Incoming Players will be Banned. (Except Ops)");
+				colorSendAll("Defcon Level is set to 3.");
+				kickAllPlayers(defconLevel);
+			} else if(args[1].equalsIgnoreCase("4")) {
+				this.defconLevel = 4;
+				colorSend(player, "Defcon level set to 4.");
+				colorSend(player, "All Players are Muted");
+				colorSendAll("Defcon Level is set to 4.");
+			} else if(args[1].equalsIgnoreCase("5")) {
+				this.defconLevel = 5;
+				colorSend(player, "Defcon level set to 5.");
+				colorSend(player, "Building is off.");
+				colorSendAll("Defcon Level is set to 5.");
+			} else if(args[1].equalsIgnoreCase("6")) {
+				this.defconLevel = 6;
+				colorSend(player, "Defcon level set to 6.");
+				colorSend(player, "All players are Frozen.");
+				colorSendAll("Defcon Level is set to 6.");
+			} else if(args[1].equalsIgnoreCase("view")) {
+				colorSend(player, ChatColor.AQUA + "Defcon 1 " + ChatColor.GRAY + ": Kicks all Incoming Players.");
+				colorSend(player, ChatColor.AQUA + "Defcon 2 " + ChatColor.GRAY + ": Temporary Bans all Incoming Players(McBans Only).");
+				colorSend(player, ChatColor.AQUA + "Defcon 3 " + ChatColor.GRAY + ": Bans all Incoming Players.");
+				colorSend(player, ChatColor.AQUA + "Defcon 4 " + ChatColor.GRAY + ": Mutes all Players.");
+				colorSend(player, ChatColor.AQUA + "Defcon 5 " + ChatColor.GRAY + ": Turns off Building.");
+				colorSend(player, ChatColor.AQUA + "Defcon 6 " + ChatColor.GRAY + ": Players are Frozen.");
 			} else {
 				colorSend(player, "Unknown Defcon Level");
 			}
-		} else {
-			colorSend(player, "Hi");
-		}
+		} 
 		if(cmd.equalsIgnoreCase("check")) {
 			colorSend(player, "Defcon is on Level: " + defconLevel);
 		}
@@ -151,8 +200,11 @@ public class MCDefcon extends JavaPlugin {
 			loadConfig();
 		}
 		if(cmd.equalsIgnoreCase("version")) {
-			colorSend(player, "Version: 1.0. Made by SystexPro");
+			colorSend(player, "Version: " + getDescription().getVersion() + ". Made by SystexPro");
 		} 
+		if(cmd.equalsIgnoreCase("?") || cmd.equalsIgnoreCase("help")) {
+			help(player);
+		}
 	}
 
 	public void kickAllPlayers(int level) {
@@ -167,7 +219,6 @@ public class MCDefcon extends JavaPlugin {
 		}
 	}
 
-
 	/**
 	 * Register Events
 	 */
@@ -175,7 +226,12 @@ public class MCDefcon extends JavaPlugin {
 	{
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_LOGIN, this.playerListener , Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_CHAT, this.playerListener , Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_MOVE, this.playerListener, Priority.Normal, this);
+		pm.registerEvent(Event.Type.BLOCK_PLACE, this.blockListener , Priority.Normal, this);
+		pm.registerEvent(Event.Type.BLOCK_BREAK, this.blockListener , Priority.Normal, this);
 	}
+
 
 	/**
 	 * Help Menu
@@ -186,9 +242,11 @@ public class MCDefcon extends JavaPlugin {
 		Player p = (Player) sender;
 		p.sendMessage(ChatColor.DARK_RED + "==MCDefcon v1.0==");
 		p.sendMessage(ChatColor.AQUA + "Command Triggers - /dc, /defcon");
-		p.sendMessage(ChatColor.DARK_AQUA + "/dc level <level> - Sets Defcon Level: 0, 1, 2");
+		p.sendMessage(ChatColor.DARK_AQUA + "/dc level <level> - Sets Defcon Level: 0, 1, 2, 3, 4, 5, and 6");
+		p.sendMessage(ChatColor.DARK_AQUA + "/dc level view - Shows the current Defcon Levels.");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc check - Checks what level Defcon is on.");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc reload - Reload Coonfiguration File.");
+		p.sendMessage(ChatColor.DARK_AQUA + "/dc ? - Help Menu.");
 		return true;
 	}
 
@@ -213,6 +271,9 @@ public class MCDefcon extends JavaPlugin {
 		}
 	}
 
+	/**
+	 * Setup McBans
+	 */
 	private void setupMcbans() {
 		Plugin banPlugin = this.getServer().getPluginManager().getPlugin("mcbans");
 		if (this.mcbansHandler == null && this.useMcBans) {
@@ -268,10 +329,10 @@ public class MCDefcon extends JavaPlugin {
 
 	/**
 	 * Console Message
-	 * @param t
+	 * @param object
 	 */
-	public void send(String t) {
-		System.out.println("[MCDefcon] " + t);
+	public void send(Object object) {
+		System.out.println("[MCDefcon] " + object);
 	}
 
 }
