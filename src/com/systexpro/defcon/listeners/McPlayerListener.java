@@ -22,7 +22,7 @@ public class McPlayerListener extends PlayerListener {
 		Player p = event.getPlayer();
 		Location loc1 = event.getFrom();
 		if(plugin.defconLevel == 6) {
-			if(!plugin.isAdmin(p, "admin") || !plugin.isAdmin(p, "accept")) {
+			if(!plugin.isAdmin(p, "accept")) {
 				p.teleport(loc1);
 			} else {
 				event.setCancelled(false);
@@ -61,7 +61,7 @@ public class McPlayerListener extends PlayerListener {
 	public void onPlayerChat(PlayerChatEvent event) {
 		Player p = event.getPlayer();
 		if(plugin.defconLevel == 4) {
-			if(!plugin.isAdmin(p, "admin") || !plugin.isAdmin(p, "accept")) {
+			if(!plugin.isAdmin(p, "accept")) {
 				plugin.colorSend(p, plugin.defconAPI.getLevel4Message());
 				event.setCancelled(true);
 			} else {

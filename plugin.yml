@@ -1,6 +1,6 @@
 name: McDefcon
 main: com.systexpro.defcon.McDefcon
-version: 3.0
+version: 3.5
 permissions:
     mcdefcon.admin:
         description: Allows a Player to change Defcon Levels

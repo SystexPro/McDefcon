@@ -146,7 +146,6 @@ public class McDefcon extends JavaPlugin {
 				colorSend(player, "Defcon Level set to 0.");
 				colorSend(player, "All Players will join without check.");
 				colorSendAll("Defcon Level is set to 0.");
-				kickAllPlayers(defconLevel);
 			} else if(args[1].equalsIgnoreCase("1")) {
 				setDefconLevel(1);
 				colorSend(player, "Defcon Level set to 1.");
@@ -249,6 +248,7 @@ public class McDefcon extends JavaPlugin {
 		pm.registerEvent(Event.Type.PLAYER_LOGIN, this.playerListener , Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_CHAT, this.playerListener , Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_MOVE, this.playerListener, Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PLACE, this.blockListener , Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, this.blockListener , Priority.Normal, this);
 	}
