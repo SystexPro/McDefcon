@@ -10,8 +10,12 @@ public class McDefconApi {
 		plugin = df;
 	}
 
+	/**
+	 * Set Defcon Level
+	 * @param level
+	 */
 	public void setDefconLevel(int level) {
-		if(level < plugin.defconLevel)
+		if(level < plugin.maxLevel)
 			plugin.defconLevel = level;
 	}
 
