@@ -73,7 +73,11 @@ public class McDefcon extends JavaPlugin {
 		playerListener = new McPlayerListener(this);
 		blockListener = new McBlockListener(this);
 		defconAPI = new McDefconApi(this);
-		setupPermissions();
+		if(bPerms) {
+			this.UsePermissions = false;
+		} else {
+			setupPermissions();
+		}
 		setupMcbans();
 		registerEvents();
 		send("Defcon on Level: " + this.defconLevel);
@@ -142,19 +146,19 @@ public class McDefcon extends JavaPlugin {
 		String cmd = args[0];
 		if(cmd.equalsIgnoreCase("level") || cmd.equalsIgnoreCase("lvl") && args[1] != null) {
 			if(args[1].equalsIgnoreCase("0")) {
-				setDefconLevel(0);
+				defconAPI.setDefconLevel(DefconLevel.LEVEL_0.getLevel());
 				colorSend(player, "Defcon Level set to 0.");
 				colorSend(player, "All Players will join without check.");
 				colorSendAll("Defcon Level is set to 0.");
 			} else if(args[1].equalsIgnoreCase("1")) {
-				setDefconLevel(1);
+				defconAPI.setDefconLevel(DefconLevel.LEVEL_1.getLevel());
 				colorSend(player, "Defcon Level set to 1.");
 				colorSend(player, "All Players will be kicked off. (Except Ops)");
 				colorSendAll("Defcon Level is set to 1.");
 				kickAllPlayers(defconLevel);
 			} else if(args[1].equalsIgnoreCase("2")) {
 				if(this.useMcBans) {
-					setDefconLevel(2);
+					defconAPI.setDefconLevel(DefconLevel.LEVEL_2.getLevel());
 					colorSend(player, "Defcon level set to 2.");
 					colorSend(player, "All Incoming will be temporary banned for " + this.mcTempBanTime);
 					colorSendAll("Defcon Level is set to 2.");
@@ -163,22 +167,22 @@ public class McDefcon extends JavaPlugin {
 					colorSend(player, "This Level is for McBans, Please load McBans to use it.");
 				}
 			} else if(args[1].equalsIgnoreCase("3")) {
-				setDefconLevel(3);
+				defconAPI.setDefconLevel(DefconLevel.LEVEL_3.getLevel());
 				colorSend(player, "Defcon level set to 3.");
 				colorSend(player, "All Incoming Players will be Banned. (Except Ops)");
 				colorSendAll("Defcon Level is set to 3.");
 			} else if(args[1].equalsIgnoreCase("4")) {
-				setDefconLevel(4);
+				defconAPI.setDefconLevel(DefconLevel.LEVEL_4.getLevel());
 				colorSend(player, "Defcon level set to 4.");
 				colorSend(player, "All Players are Muted");
 				colorSendAll("Defcon Level is set to 4.");
 			} else if(args[1].equalsIgnoreCase("5")) {
-				setDefconLevel(5);
+				defconAPI.setDefconLevel(DefconLevel.LEVEL_5.getLevel());
 				colorSend(player, "Defcon level set to 5.");
 				colorSend(player, "Building is off.");
 				colorSendAll("Defcon Level is set to 5.");
 			} else if(args[1].equalsIgnoreCase("6")) {
-				this.setDefconLevel(6);
+				this.defconAPI.setDefconLevel(DefconLevel.LEVEL_6.getLevel());
 				colorSend(player, "Defcon level set to 6.");
 				colorSend(player, "All players are Frozen.");
 				colorSendAll("Defcon Level is set to 6.");
@@ -211,10 +215,6 @@ public class McDefcon extends JavaPlugin {
 		if(cmd.equalsIgnoreCase("?") || cmd.equalsIgnoreCase("help")) {
 			help(player);
 		}
-	}
-
-	public void setDefconLevel(int i) {
-		this.defconLevel = i;
 	}
 
 	public void kickAllPlayers(int level) {
@@ -282,13 +282,13 @@ public class McDefcon extends JavaPlugin {
 				this.permissionHandler = ((Permissions) permissionsPlugin).getHandler();
 				send("Permissions Detected. Hooking into API");
 				UsePermissions = true;
-			} else {
-				if(!bPerms) {
-					send("Permission system not detected, defaulting to OP.");	
-				} else {
-					send("Permission system not detected, defaulting to Bukkit Permissions.");	
-				}
-				UsePermissions = false;
+//			} else {
+//				if(!bPerms) {
+//					send("Permission system not detected, defaulting to OP.");	
+//				} else {
+//					send("Permission system not detected, defaulting to Bukkit Permissions.");	
+//				}
+//				UsePermissions = false;
 			}
 		}
 	}
@@ -310,7 +310,7 @@ public class McDefcon extends JavaPlugin {
 			}
 		}
 	}
-	
+
 	/**
 	 * Defaults to Op/Permissions
 	 * Checks if User has either
