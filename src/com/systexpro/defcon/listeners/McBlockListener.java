@@ -18,7 +18,7 @@ public class McBlockListener extends BlockListener {
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Player player = event.getPlayer();
 		if(plugin.defconLevel == 5 && !plugin.isAdmin(player, "accept")) {
-			player.sendMessage(plugin.level5Message);
+			plugin.colorSend(player, plugin.defconAPI.getLevel5Message());
 			event.setCancelled(true);
 		} 
 	}
@@ -26,7 +26,7 @@ public class McBlockListener extends BlockListener {
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
 		if(plugin.defconLevel == 5 && !plugin.isAdmin(player, "accept")) {
-			player.sendMessage(plugin.level5Message);
+			plugin.colorSend(player, plugin.defconAPI.getLevel5Message());
 			event.setCancelled(true);
 		} 
 	}

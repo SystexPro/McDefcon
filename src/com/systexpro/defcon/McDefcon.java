@@ -52,6 +52,7 @@ public class McDefcon extends JavaPlugin {
 	public boolean mcbansLoaded;
 	public boolean useMcBans = false;
 	public boolean bPerms = false;
+	public boolean showDefconLevelOnJoin = true;
 	public int defconLevel = 0;
 	public int maxLevel = 7;
 	public int[] levelList;
@@ -103,6 +104,7 @@ public class McDefcon extends JavaPlugin {
 		this.bPerms = config.getBoolean("options.Use Bukkit Permissions", bPerms);
 		this.broadcast = config.getBoolean("options.Broadcast Level Change", broadcast);
 		this.useMcBans = config.getBoolean("options.Use McBans", useMcBans);
+		this.showDefconLevelOnJoin = config.getBoolean("options.Show Defcon Level On Join", showDefconLevelOnJoin);
 		this.onDefconChangeKickAllPlayers = config.getBoolean("options.Kick All Players on Defcon Level Change", onDefconChangeKickAllPlayers);
 		this.mcTempBanTime = config.getString("options.McBans Temporary Ban Time", mcTempBanTime);
 		config.save();

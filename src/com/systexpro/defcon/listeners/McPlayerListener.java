@@ -1,7 +1,9 @@
 package com.systexpro.defcon.listeners;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -18,18 +20,20 @@ public class McPlayerListener extends PlayerListener {
 
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player p = event.getPlayer();
-		int messageSent = 0;
+		Location loc1 = event.getFrom();
 		if(plugin.defconLevel == 6) {
 			if(!plugin.isAdmin(p, "admin") || !plugin.isAdmin(p, "accept")) {
-				messageSent++;
-				if(messageSent == 1000) {
-					p.sendMessage(plugin.level6Message);
-					messageSent = 0;
-				}
-				event.setCancelled(true);
+				p.teleport(loc1);
 			} else {
 				event.setCancelled(false);
 			}
+		}
+	}
+
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		Player p = event.getPlayer();
+		if(plugin.showDefconLevelOnJoin) {
+			plugin.colorSend(p, "Server is on Defcon Level: " + plugin.defconLevel);
 		}
 	}
 
@@ -58,7 +62,7 @@ public class McPlayerListener extends PlayerListener {
 		Player p = event.getPlayer();
 		if(plugin.defconLevel == 4) {
 			if(!plugin.isAdmin(p, "admin") || !plugin.isAdmin(p, "accept")) {
-				p.sendMessage(plugin.defconAPI.getLevel4Message());
+				plugin.colorSend(p, plugin.defconAPI.getLevel4Message());
 				event.setCancelled(true);
 			} else {
 				event.setCancelled(false);
