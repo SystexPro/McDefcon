@@ -23,6 +23,7 @@ import com.firestar.mcbans.mcbans_handler;
 import com.firestar.mcbans.mcbans;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.systexpro.defcon.api.DefconLevel;
 import com.systexpro.defcon.api.McDefconApi;
 import com.systexpro.defcon.listeners.McBlockListener;
 import com.systexpro.defcon.listeners.McPlayerListener;
@@ -45,6 +46,7 @@ public class McDefcon extends JavaPlugin {
 	public String level5Message = "Defcon Level 5. Building is off.";
 	public String level6Message = "Defcon Level 6. All players are frozen.";
 	public String mcTempBanTime = "5m";
+	public final String buildVersion = "#1185";
 	public boolean onDefconChangeKickAllPlayers = false;
 	public boolean broadcast = true;
 	public boolean UsePermissions;
@@ -74,7 +76,7 @@ public class McDefcon extends JavaPlugin {
 		blockListener = new McBlockListener(this);
 		defconAPI = new McDefconApi(this);
 		if(bPerms) {
-			this.UsePermissions = false;
+			UsePermissions = false;
 		} else {
 			setupPermissions();
 		}
@@ -91,7 +93,7 @@ public class McDefcon extends JavaPlugin {
 		config.setHeader(
 				"#====================================\n" +
 				"#McBans by SystexPro\n" +
-				"#Build: #1060\n" +
+				"#Build: " + buildVersion + "\n" +
 				"#Version: " + getDescription().getVersion() + "\n" +
 				"#====================================\n" 
 		);
@@ -182,7 +184,7 @@ public class McDefcon extends JavaPlugin {
 				colorSend(player, "Building is off.");
 				colorSendAll("Defcon Level is set to 5.");
 			} else if(args[1].equalsIgnoreCase("6")) {
-				this.defconAPI.setDefconLevel(DefconLevel.LEVEL_6.getLevel());
+				defconAPI.setDefconLevel(DefconLevel.LEVEL_6.getLevel());
 				colorSend(player, "Defcon level set to 6.");
 				colorSend(player, "All players are Frozen.");
 				colorSendAll("Defcon Level is set to 6.");
@@ -204,13 +206,15 @@ public class McDefcon extends JavaPlugin {
 			colorSend(player, "Kicking all Players.");
 			kickAllPlayersFromServer(player);
 		}
-		if(cmd.equalsIgnoreCase("reload")) {
+		if(cmd.equalsIgnoreCase("reload") || cmd.equalsIgnoreCase("r")) {
 			colorSend(player, "Reloading Configuration File.");
 			send("Reloading Configuration File.");
 			loadConfig();
 		}
-		if(cmd.equalsIgnoreCase("version")) {
-			colorSend(player, "Version: " + getDescription().getVersion() + ". Made by SystexPro");
+		if(cmd.equalsIgnoreCase("version") || cmd.equalsIgnoreCase("v")) {
+			colorSend(player, "Version: " + getDescription().getVersion() + ".");
+			colorSend(player, "Bukkit Build: " + buildVersion + ".");
+			colorSend(player, "Made by SystexPro");
 		} 
 		if(cmd.equalsIgnoreCase("?") || cmd.equalsIgnoreCase("help")) {
 			help(player);
@@ -298,7 +302,7 @@ public class McDefcon extends JavaPlugin {
 	 */
 	private void setupMcbans() {
 		Plugin banPlugin = this.getServer().getPluginManager().getPlugin("mcbans");
-		if (this.mcbansHandler == null && this.useMcBans) {
+		if (this.mcbansHandler == null && useMcBans) {
 			if (banPlugin != null) {
 				this.mcbansHandler = ((mcbans) banPlugin).mcb_handler;
 				send("McBans Detected. Hooking into API");
@@ -314,6 +318,7 @@ public class McDefcon extends JavaPlugin {
 	/**
 	 * Defaults to Op/Permissions
 	 * Checks if User has either
+	 * DO NOT USE THIS ONE! USE THE ONE IN THE API!!!
 	 * @param p
 	 * @param node
 	 * @return
@@ -343,7 +348,7 @@ public class McDefcon extends JavaPlugin {
 	 * @param text
 	 */
 	public void colorSendAll(String text) {
-		if(this.broadcast == true) {
+		if(this.broadcast) {
 			getServer().broadcastMessage(ChatColor.AQUA + "[Global Defcon] " + ChatColor.YELLOW + text);
 		} else {
 			return;

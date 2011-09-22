@@ -1,5 +1,8 @@
 package com.systexpro.defcon.api;
 
+import org.bukkit.entity.Player;
+
+import com.systexpro.defcon.DefconPermission;
 import com.systexpro.defcon.McDefcon;
 
 public class McDefconApi {
@@ -19,6 +22,57 @@ public class McDefconApi {
 			plugin.defconLevel = level;
 	}
 
+	/**
+	 * Resets the Defcon Level to 0
+	 * @return
+	 */
+	public boolean resetDefconLevel() {
+		plugin.defconLevel = 0;
+		return true;
+	}
+
+	/**
+	 * Has Defcon Permission
+	 * @param p
+	 * @param arg0
+	 * @return
+	 */
+	public boolean hasDefconPermission(Player p, DefconPermission arg0) {
+		if (plugin.UsePermissions) {
+			return plugin.permissionHandler.has(p, arg0.toString());
+		} else if(plugin.bPerms) {
+			return p.hasPermission(arg0.toString());
+		} else {
+			return p.isOp();
+		}
+	}
+	
+	/**
+	 * Returns the current Defcon Level
+	 * @return
+	 */
+	public int getCurrentLevel() {
+		return plugin.defconLevel;
+	}
+
+	/**
+	 * Returns if Defcon is on
+	 * Level > 0
+	 * @return
+	 */
+	public boolean isDefconOn() {
+		return plugin.defconLevel > 0;
+	}
+
+	/**
+	 * Returns if Defcon is off
+	 * Level < 0
+	 * @return
+	 */
+	public boolean isDefconOff() {
+		return plugin.defconLevel < 0;
+	}
+
 	public String getLevel1Message() {
 		return plugin.level1Message;
 	}
@@ -34,11 +88,11 @@ public class McDefconApi {
 	public String getLevel4Message() {
 		return plugin.level4Message;
 	}
-	
+
 	public String getLevel5Message() {
 		return plugin.level5Message;
 	}
-	
+
 	public String getLevel6Message() {
 		return plugin.level6Message;
 	}
