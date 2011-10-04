@@ -46,12 +46,12 @@ public class McDefcon extends JavaPlugin {
 	public String level5Message = "Defcon Level 5. Building is off.";
 	public String level6Message = "Defcon Level 6. All players are frozen.";
 	public String mcTempBanTime = "5m";
-	public final String buildVersion = "#1185";
+	public final String buildVersion = "#1240";
 	public boolean onDefconChangeKickAllPlayers = false;
 	public boolean broadcast = true;
-	public boolean UsePermissions;
+	public boolean UsePermissions = false;
 	public boolean autoUpdate = false;
-	public boolean mcbansLoaded;
+	public boolean mcbansLoaded = false;
 	public boolean useMcBans = false;
 	public boolean bPerms = false;
 	public boolean showDefconLevelOnJoin = true;
@@ -59,8 +59,6 @@ public class McDefcon extends JavaPlugin {
 	public int maxLevel = 7;
 	public int[] levelList;
 
-
-	@Override
 	public void onDisable() {
 		loadConfig();
 		send("Unloaded McDefcon Version " + this.getDescription().getVersion());
@@ -68,13 +66,14 @@ public class McDefcon extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		send("Loading MCDefcon Version " + this.getDescription().getVersion());
+		send("Loading MCDefcon Version " + getDescription().getVersion());
 		getDataFolder().mkdirs();
 		send("Loading Configuration File.");
 		loadConfig();
 		playerListener = new McPlayerListener(this);
 		blockListener = new McBlockListener(this);
 		defconAPI = new McDefconApi(this);
+		send("Starting McDefconAPI");
 		if(bPerms) {
 			UsePermissions = false;
 		} else {
@@ -125,7 +124,7 @@ public class McDefcon extends JavaPlugin {
 		Player p = (Player) sender;
 		if (commandLabel.equalsIgnoreCase("defcon") || commandLabel.equalsIgnoreCase("dc")) {
 			if (args.length >= 1 && sender instanceof Player) {
-				if(isAdmin(p, "admin")) {
+				if(this.defconAPI.hasDefconPermission(p, "admin")) {
 					handleCommand(sender, args);
 					return true;
 				} else {
@@ -159,7 +158,7 @@ public class McDefcon extends JavaPlugin {
 				colorSendAll("Defcon Level is set to 1.");
 				kickAllPlayers(defconLevel);
 			} else if(args[1].equalsIgnoreCase("2")) {
-				if(this.useMcBans) {
+				if(useMcBans) {
 					defconAPI.setDefconLevel(DefconLevel.LEVEL_2.getLevel());
 					colorSend(player, "Defcon level set to 2.");
 					colorSend(player, "All Incoming will be temporary banned for " + this.mcTempBanTime);
@@ -222,11 +221,11 @@ public class McDefcon extends JavaPlugin {
 	}
 
 	public void kickAllPlayers(int level) {
-		if(this.onDefconChangeKickAllPlayers) {
-			Player[] online = this.getServer().getOnlinePlayers();
+		if(onDefconChangeKickAllPlayers) {
+			Player[] online = getServer().getOnlinePlayers();
 			for(int x = 0; x < online.length; x++) {
 				Player p = online[x];
-				if(!this.isAdmin(p, "admin") || !this.isAdmin(p, "accept")) {
+				if(!this.defconAPI.hasDefconPermission(p, "admin") || !this.defconAPI.hasDefconPermission(p, "accept")) {
 					p.kickPlayer("Defcon Level set to " + level);
 				}
 			}
@@ -234,10 +233,10 @@ public class McDefcon extends JavaPlugin {
 	}
 
 	public void kickAllPlayersFromServer(Player p1) {
-		Player[] online = this.getServer().getOnlinePlayers();
+		Player[] online = getServer().getOnlinePlayers();
 		for(int x = 0; x < online.length; x++) {
 			Player p = online[x];
-			if(!this.isAdmin(p, "admin") || !this.isAdmin(p, "accept")) {
+			if(!this.defconAPI.hasDefconPermission(p, "admin") || !this.defconAPI.hasDefconPermission(p, "accept")) {
 				p.kickPlayer("Kicking all Players - " + p1.getDisplayName());
 			}
 		}
@@ -249,12 +248,12 @@ public class McDefcon extends JavaPlugin {
 	private void registerEvents()
 	{
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_LOGIN, this.playerListener , Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_CHAT, this.playerListener , Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_MOVE, this.playerListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_PLACE, this.blockListener , Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_BREAK, this.blockListener , Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_LOGIN, playerListener , Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener , Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
+		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener , Priority.Normal, this);
+		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener , Priority.Normal, this);
 	}
 
 
@@ -280,19 +279,12 @@ public class McDefcon extends JavaPlugin {
 	 * Connect to Permissions
 	 */
 	private void setupPermissions() {
-		Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
-		if (this.permissionHandler == null) {
+		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
+		if (permissionHandler == null) {
 			if (permissionsPlugin != null) {
-				this.permissionHandler = ((Permissions) permissionsPlugin).getHandler();
+				permissionHandler = ((Permissions) permissionsPlugin).getHandler();
 				send("Permissions Detected. Hooking into API");
 				UsePermissions = true;
-//			} else {
-//				if(!bPerms) {
-//					send("Permission system not detected, defaulting to OP.");	
-//				} else {
-//					send("Permission system not detected, defaulting to Bukkit Permissions.");	
-//				}
-//				UsePermissions = false;
 			}
 		}
 	}
@@ -301,37 +293,20 @@ public class McDefcon extends JavaPlugin {
 	 * Setup McBans
 	 */
 	private void setupMcbans() {
-		Plugin banPlugin = this.getServer().getPluginManager().getPlugin("mcbans");
-		if (this.mcbansHandler == null && useMcBans) {
+		Plugin banPlugin = getServer().getPluginManager().getPlugin("mcbans");
+		if (mcbansHandler == null && useMcBans) {
 			if (banPlugin != null) {
-				this.mcbansHandler = ((mcbans) banPlugin).mcb_handler;
+				mcbansHandler = ((mcbans) banPlugin).mcb_handler;
 				send("McBans Detected. Hooking into API");
-				this.mcbansLoaded = true;
+				mcbansLoaded = true;
 			} else {
 				send("McBans not detected, change your config.yml to not use McBans");
-				this.getServer().getPluginManager().disablePlugin(this);
-				this.mcbansLoaded = false;
+				getServer().getPluginManager().disablePlugin(this);
+				mcbansLoaded = false;
 			}
 		}
 	}
-
-	/**
-	 * Defaults to Op/Permissions
-	 * Checks if User has either
-	 * DO NOT USE THIS ONE! USE THE ONE IN THE API!!!
-	 * @param p
-	 * @param node
-	 * @return
-	 */
-	public boolean isAdmin(Player p, String node) {
-		if (UsePermissions) {
-			return permissionHandler.has(p, "mcdefcon." + node);
-		} else if(bPerms) {
-			return p.hasPermission("mcdefcon." + node);
-		} else {
-			return p.isOp();
-		}
-	}
+	
 
 	/**
 	 * Defcon Message
@@ -348,7 +323,7 @@ public class McDefcon extends JavaPlugin {
 	 * @param text
 	 */
 	public void colorSendAll(String text) {
-		if(this.broadcast) {
+		if(broadcast) {
 			getServer().broadcastMessage(ChatColor.AQUA + "[Global Defcon] " + ChatColor.YELLOW + text);
 		} else {
 			return;

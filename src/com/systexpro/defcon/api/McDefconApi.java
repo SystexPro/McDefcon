@@ -2,7 +2,6 @@ package com.systexpro.defcon.api;
 
 import org.bukkit.entity.Player;
 
-import com.systexpro.defcon.DefconPermission;
 import com.systexpro.defcon.McDefcon;
 
 public class McDefconApi {
@@ -42,6 +41,16 @@ public class McDefconApi {
 			return plugin.permissionHandler.has(p, arg0.toString());
 		} else if(plugin.bPerms) {
 			return p.hasPermission(arg0.toString());
+		} else {
+			return p.isOp();
+		}
+	}
+	
+	public boolean hasDefconPermission(Player p, String node) {
+		if (plugin.UsePermissions) {
+			return plugin.permissionHandler.has(p, "mcdefcon." + node);
+		} else if(plugin.bPerms) {
+			return p.hasPermission("mcdefcon." + node);
 		} else {
 			return p.isOp();
 		}

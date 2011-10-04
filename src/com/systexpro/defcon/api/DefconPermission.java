@@ -1,4 +1,4 @@
-package com.systexpro.defcon;
+package com.systexpro.defcon.api;
 
 public enum DefconPermission {
 
