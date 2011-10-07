@@ -8,7 +8,8 @@ public enum DefconLevel {
 	LEVEL_3(3),
 	LEVEL_4(4),
 	LEVEL_5(5),
-	LEVEL_6(6);
+	LEVEL_6(6), 
+	LEVEL_7(7);
 	
 	int level;
 	

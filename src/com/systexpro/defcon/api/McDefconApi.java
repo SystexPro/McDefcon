@@ -38,7 +38,7 @@ public class McDefconApi {
 	 */
 	public boolean hasDefconPermission(Player p, DefconPermission arg0) {
 		if (plugin.UsePermissions) {
-			return plugin.permissionHandler.has(p, arg0.toString());
+			return plugin.permissions.has(p, arg0.toString());
 		} else if(plugin.bPerms) {
 			return p.hasPermission(arg0.toString());
 		} else {
@@ -48,7 +48,7 @@ public class McDefconApi {
 	
 	public boolean hasDefconPermission(Player p, String node) {
 		if (plugin.UsePermissions) {
-			return plugin.permissionHandler.has(p, "mcdefcon." + node);
+			return plugin.permissions.has(p, "mcdefcon." + node);
 		} else if(plugin.bPerms) {
 			return p.hasPermission("mcdefcon." + node);
 		} else {
