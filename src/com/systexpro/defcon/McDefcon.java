@@ -9,6 +9,7 @@ package com.systexpro.defcon;
 
 import java.io.File;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,10 +20,12 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
+
+import ru.tehkode.permissions.PermissionManager;
+import ru.tehkode.permissions.bukkit.PermissionsEx;
+
 import com.firestar.mcbans.mcbans_handler;
 import com.firestar.mcbans.mcbans;
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
 import com.systexpro.defcon.api.DefconLevel;
 import com.systexpro.defcon.api.McDefconApi;
 import com.systexpro.defcon.listeners.McBlockListener;
@@ -33,7 +36,7 @@ public class McDefcon extends JavaPlugin {
 
 	public McPlayerListener playerListener;
 	public McBlockListener blockListener;
-	public PermissionHandler permissionHandler;
+	public PermissionManager permissions;
 	public mcbans_handler mcbansHandler;
 	public CommandHandler commands = new CommandHandler(this);
 	public Configuration config = new Configuration(new File("plugins/McDefcon/config.yml"));
@@ -45,6 +48,8 @@ public class McDefcon extends JavaPlugin {
 	public String level4Message = "Defcon Level 4. All Players Muted.";
 	public String level5Message = "Defcon Level 5. Building is off.";
 	public String level6Message = "Defcon Level 6. All players are frozen.";
+//	public String level7Message = "Change me!!! I'm a custom Level!";
+//	public String level7Command = "/say you should chnage this to do a command, /say yea lol";
 	public String mcTempBanTime = "5m";
 	public final String buildVersion = "#1240";
 	public boolean onDefconChangeKickAllPlayers = false;
@@ -82,6 +87,7 @@ public class McDefcon extends JavaPlugin {
 		setupMcbans();
 		registerEvents();
 		send("Defcon on Level: " + this.defconLevel);
+//		this.getCustomCommand();
 	}
 
 	/**
@@ -104,6 +110,8 @@ public class McDefcon extends JavaPlugin {
 		this.level4Message = config.getString("messages.Level 4 Message", this.level4Message);
 		this.level5Message = config.getString("messages.Level 5 Message", this.level5Message);
 		this.level6Message = config.getString("messages.Level 6 Message", this.level6Message);
+//		this.level7Message = config.getString("messages.Level 7 Message(Change Me)", this.level7Message);
+//		this.level7Command = config.getString("messages.Level 7 Command(Change Me)", this.level7Command);
 		//options
 		//this.autoUpdate = config.getBoolean("options.Auto Update Plugin", autoUpdate);
 		this.bPerms = config.getBoolean("options.Use Bukkit Permissions", bPerms);
@@ -187,6 +195,11 @@ public class McDefcon extends JavaPlugin {
 				colorSend(player, "Defcon level set to 6.");
 				colorSend(player, "All players are Frozen.");
 				colorSendAll("Defcon Level is set to 6.");
+//			} else if(args[1].equalsIgnoreCase("7")) {
+//				defconAPI.setDefconLevel(DefconLevel.LEVEL_7.getLevel());
+//				colorSend(player, "Defcon level set to 7.");
+//				colorSend(player, "Using Custom Command.");
+//				colorSendAll("Defcon Level is set to 7.");
 			} else if(args[1].equalsIgnoreCase("view")) {
 				colorSend(player, ChatColor.AQUA + "Defcon 1 " + ChatColor.GRAY + ": Kicks all Incoming Players.");
 				colorSend(player, ChatColor.AQUA + "Defcon 2 " + ChatColor.GRAY + ": Temporary Bans all Incoming Players(McBans Only).");
@@ -194,6 +207,7 @@ public class McDefcon extends JavaPlugin {
 				colorSend(player, ChatColor.AQUA + "Defcon 4 " + ChatColor.GRAY + ": Mutes all Players.");
 				colorSend(player, ChatColor.AQUA + "Defcon 5 " + ChatColor.GRAY + ": Turns off Building.");
 				colorSend(player, ChatColor.AQUA + "Defcon 6 " + ChatColor.GRAY + ": Players are Frozen.");
+//				colorSend(player, ChatColor.AQUA + "Defcon 7 " + ChatColor.GRAY + ": Custom Command.");
 			} else {
 				colorSend(player, "Unknown Defcon Level");
 			}
@@ -219,6 +233,13 @@ public class McDefcon extends JavaPlugin {
 			help(player);
 		}
 	}
+	
+//	public void getCustomCommand() {
+//		String[] args = this.level7Command.split(", ");
+//		for(int x = 0; x < args.length; x++) {
+//			send(args[x]);
+//		}
+//	}
 
 	public void kickAllPlayers(int level) {
 		if(onDefconChangeKickAllPlayers) {
@@ -266,7 +287,7 @@ public class McDefcon extends JavaPlugin {
 		Player p = (Player) sender;
 		p.sendMessage(ChatColor.DARK_RED + "==MCDefcon " + getDescription().getVersion() + "==");
 		p.sendMessage(ChatColor.AQUA + "Command Triggers - /dc, /defcon");
-		p.sendMessage(ChatColor.DARK_AQUA + "/dc level <level> - Sets Defcon Level: 0, 1, 2, 3, 4, 5, and 6");
+		p.sendMessage(ChatColor.DARK_AQUA + "/dc level <level> - Sets Defcon Level: 0, 1, 2, 3, 4, 5, and 6.");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc level view - Shows the current Defcon Levels.");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc check - Checks what level Defcon is on.");
 		p.sendMessage(ChatColor.DARK_AQUA + "/dc reload - Reload Configuration File.");
@@ -279,14 +300,15 @@ public class McDefcon extends JavaPlugin {
 	 * Connect to Permissions
 	 */
 	private void setupPermissions() {
-		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
-		if (permissionHandler == null) {
-			if (permissionsPlugin != null) {
-				permissionHandler = ((Permissions) permissionsPlugin).getHandler();
+		if(Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx")){
+			if (permissions == null) {
+				permissions = PermissionsEx.getPermissionManager();
 				send("Permissions Detected. Hooking into API");
 				UsePermissions = true;
 			}
-		}
+		} else {
+			send("McBans not detected, change your config.yml to not use McBans");
+		} 
 	}
 
 	/**
@@ -306,7 +328,7 @@ public class McDefcon extends JavaPlugin {
 			}
 		}
 	}
-	
+
 
 	/**
 	 * Defcon Message
